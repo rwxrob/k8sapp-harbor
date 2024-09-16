@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -e
+
+: "${K8SAPP_NAMESPACE:=harbor}"
+: "${K8SAPP_APPLICATION_VERSION:=1.15.1}" # Helm chart for 1.22.1
+
+#tmpyaml=$(mktemp)
+#echo "tmpyaml: $tmpyaml"
+tmpyaml=manifest.yaml
+
+. tools/build-postgresql
+
+helm repo add harbor https://helm.goharbor.io
+helm repo update harbor
+helm template harbor harbor/harbor  \
+	--namespace "$K8SAPP_NAMESPACE" \
+	--version "$K8SAPP_APPLICATION_VERSION" \
+	> "$tmpyaml"
+
