@@ -24,8 +24,10 @@
 * include full backup of PostgreSQL k8s CronJobs
 * single `harbor` namespace to keep ConfigMaps simple
 * verify and validate external Vault installation dependency
+* no attempt to `grep -va helm` out the helm stuff since does not work
 
 ## Questions:
 
+* Should the `build`, `deploy`, `undeploy` scripts be scoped to a target cluster or not?
 * Is local PVC okay for minikube "emulated" installation?
 * Why the fuck am I doing this when I could just use VMs instead?

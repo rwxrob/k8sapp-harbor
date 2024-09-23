@@ -6,6 +6,6 @@ The tricky part with installing Harbor HA is all the dependencies. The following
 
 * PostgreSQL
 * Reddis
-* Vault
+* Vault (optional for secrets)
 
 This K8SAPP considers the first two to be a part of this application with the same namespace. Vault, however, is assumed to have been already installed. (See [k8sapp-vault](https://github.com/rwxrob/k8sapp-vault) for ideas about that.)

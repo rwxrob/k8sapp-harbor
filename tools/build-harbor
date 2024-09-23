@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+helm repo add harbor https://helm.goharbor.io
+helm repo update harbor
+
+yaml=$(helm template harbor bitnami/harbor \
+	--namespace "$K8SAPP_NAMESPACE" \
+	--version "$K8SAPP_UPSTREAM")
+
+## TODO detect Vault if available
+## TODO create some secrets in Vault (if Vault)
+
+cat <<<"$yaml" > harbor.yaml ## TODO remove later

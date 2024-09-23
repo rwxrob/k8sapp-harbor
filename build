@@ -1,20 +1,24 @@
-#!/usr/bin/env bash
-
+#!/bin/bash
 set -e
 
+: "${K8SAPP_CLUSTER:=dev}"
 : "${K8SAPP_NAMESPACE:=harbor}"
-: "${K8SAPP_APPLICATION_VERSION:=1.15.1}" # Helm chart for 1.22.1
 
-#tmpyaml=$(mktemp)
-#echo "tmpyaml: $tmpyaml"
-tmpyaml=manifest.yaml
+: "${HARBOR_CHART:=1.15.1}"
+: "${POSTGRESQL_CHART=15.5.31}"
+: "${REDIS_CHART:=20.1.3}"
 
-. tools/build-postgresql
+: "${http_proxy:=}"
+: "${https_proxy:=}"
+: "${no_proxy:=}"
 
-helm repo add harbor https://helm.goharbor.io
-helm repo update harbor
-helm template harbor harbor/harbor  \
-	--namespace "$K8SAPP_NAMESPACE" \
-	--version "$K8SAPP_APPLICATION_VERSION" \
-	> "$tmpyaml"
+./tools/check-k8sapp
+
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update bitnami
+
+./tools/build-postgresql
+./tools/build-redis
+./tools/build-harbor
 

@@ -1,0 +1,34 @@
+#!/bin/bash
+set -e
+
+red=$'\e[31m'
+mag=$'\e[35m'
+x=$'\e[0m'
+
+## must be run from Linux machine (no accidental mac unix)
+if [[ ! "$OSTYPE" =~ ^linux ]];then
+	printf "${red}k8sapp requires linux${x}\n" "$cmd"
+	exit 1
+fi
+
+# double check all required external commands
+for cmd in kubectl skopeo buildah; do
+	[[ -n "$(command -v "$cmd")" ]] && continue
+	printf "${mag}%s${red} not found${x}\n" "$cmd"
+	exit 1
+done
+
+# force cluster to one of 'dev', 'prod', or 'inf'
+if [[ ! "$K8SAPP_CLUSTER" =~ ^dev|prod|inf$ ]]; then
+	printf "${red}K8SAPP_CLUSTER (%s) not dev|prod|inf${x}\n" "$K8SAPP_CLUSTER"
+	exit 1
+fi
+
+# make sure current context correct (without doing it automatically)
+declare current
+current="$(kubectl config current-context)"
+if [[  "$current" != "$K8SAPP_CLUSTER" ]];then
+	printf "${red}current context (%s) != K8SAPP_CLUSTER (%s)${x}" \
+		"current" "$K*SAPP_CLUSTER"
+	exit 1
+fi
