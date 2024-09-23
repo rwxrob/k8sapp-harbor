@@ -1,9 +1,3 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-: <<-note
-This script setups three Kubernetes clusters (prod, dev, inf) that emulaters something close to an enterprise deployment. Most will have a more robust Kubernetes environment for installing this K8SAPP.
-note
-
-for cluster in prod dev inf; do
-	minikube start -p $cluster --vm-driver=qemu2
-done
+minikube start -p $cluster --vm-driver=qemu2
