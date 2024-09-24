@@ -1,20 +1,49 @@
 #!/bin/bash
 set -e
 
-: "${K8SAPP_CLUSTER:=dev}"
+: "${K8SAPP_CLUSTER:=dev}" # TODO change to inf in final
 : "${K8SAPP_NAMESPACE:=harbor}"
 
 : "${HARBOR_CHART:=1.15.1}"
-: "${POSTGRESQL_CHART=15.5.31}"
-: "${REDIS_CHART:=20.1.3}"
 
 : "${http_proxy:=}"
 : "${https_proxy:=}"
 : "${no_proxy:=}"
 
-./tools/check-k8sapp
+red=$'\e[31m'
+mag=$'\e[35m'
+x=$'\e[0m'
 
-helm repo add bitnami https://charts.bitnami.com/bitnami
+
+## must be run from Linux machine (no accidental mac unix)
+if [[ ! "$OSTYPE" =~ ^linux ]];then
+	printf "${red}k8sapp requires linux${x}\n" "$cmd"
+	exit 1
+fi
+
+# double check all required external commands
+for cmd in kubectl skopeo buildah; do
+	[[ -n "$(command -v "$cmd")" ]] && continue
+	printf "${mag}%s${red} not found${x}\n" "$cmd"
+	exit 1
+done
+
+# force cluster to one of 'dev' or 'inf'
+if [[ ! "$K8SAPP_CLUSTER" =~ ^dev|inf$ ]]; then
+	printf "${red}K8SAPP_CLUSTER (%s) not dev|inf${x}\n" "$K8SAPP_CLUSTER"
+	exit 1
+fi
+
+# make sure current context correct (without doing it automatically)
+declare current
+current="$(kubectl config current-context)"
+if [[  "$current" != "$K8SAPP_CLUSTER" ]];then
+	printf "${red}current context (%s) != K8SAPP_CLUSTER (%s)${x}" \
+		"current" "$K*SAPP_CLUSTER"
+	exit 1
+fi
+
+
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update bitnami
 
