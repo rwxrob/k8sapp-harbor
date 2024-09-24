@@ -2,10 +2,12 @@
 
 This K8SAPP is a full HA Harbor installation. This installation follows one industry practices called K8SAPP for managing core enterprise applications.
 
-The tricky part with installing Harbor HA is all the dependencies. The following *major* applications have to be full installed and working before Harbor HA can 
+## Updating
 
-* PostgreSQL
-* Redis
-* Vault (optional for secrets)
+The `resources/values.yaml` file was originally generated with the following command:
 
-This K8SAPP considers the first two to be a part of this application with the same namespace. Vault, however, is assumed to have been already installed. (See [k8sapp-vault](https://github.com/rwxrob/k8sapp-vault) for ideas about that.)
+```sh
+helm show values bitnami/harbor > resources/values.yaml
+```
+
+These values should be compared to those of new charts when updating.
