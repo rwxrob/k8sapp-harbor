@@ -1,3 +1,0 @@
-#!/bin/bash
-
-minikube start -p $cluster --vm-driver=qemu2
