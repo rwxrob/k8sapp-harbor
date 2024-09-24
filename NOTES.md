@@ -1,5 +1,13 @@
 # Notes
 
+Tuesday, September 24, 2024,  1:33:26PM EDT
+
+* Upstream `goharbor/harbor` has no PostgreSQL (nor Redis)
+* Latest `bitnami/harbor` only has PostgreSQL 13.16.0
+* Change `values.yaml` `postresql.image.tag` to `16.4.0-debian-12-r11`?
+
+----
+
 * `build` script to build from primary sources on Internet
 * `deploy` script to deploy fully into k8s cluster
 * `undeploy` completely tear down the installation from the cluster
