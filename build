@@ -4,16 +4,17 @@ set -e
 : "${K8SAPP_CLUSTER:=dev}" # TODO change to inf in final
 : "${K8SAPP_NAMESPACE:=harbor}"
 
-: "${HARBOR_CHART:=1.15.1}"
+: "${HARBOR_CHART_VERSION:=23.0.4}"
 
 : "${http_proxy:=}"
 : "${https_proxy:=}"
 : "${no_proxy:=}"
 
+declare red mag x tstamp
 red=$'\e[31m'
 mag=$'\e[35m'
 x=$'\e[0m'
-
+tstamp=$(date -u +%Y%m%d%H%M%S)
 
 ## must be run from Linux machine (no accidental mac unix)
 if [[ ! "$OSTYPE" =~ ^linux ]];then
@@ -47,7 +48,13 @@ fi
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update bitnami
 
-./tools/build-postgresql
-./tools/build-redis
-./tools/build-harbor
+declare yaml
+helm template bitnami/harbor \
+	--values=resources/values.yaml \
+	--version="$HARBOR_CHART_VERSION" \
+	--namespace="$K8SAPP_NAMESPACE" \
+	--render-subchart-notes \
+	--release-name \
+	> "pre-app-$tstamp.yaml"
 
+echo "TODO alter pre-app-$tstamp.yaml and put in manifests"
