@@ -1,5 +1,23 @@
 # Notes
 
+TODO:
+
+* Write the systems integration / DR test procedure
+* Finish `build` script
+    * If `harbor` namespace does not exist, create
+    * Swap secrets for Vault `ExternalSecrets`
+* Write `deploy` script 
+    * `kubectl apply -f ...`
+    * Add `kustomize` as needed
+* Write `build` script to flatten into `manifest/{base,inf,dev}`
+* Write `undeploy` script 
+* Create a `harbor-postgresql-backup` `CronJob` in `manifest/base/pgbak.yaml`
+
+Tuesday, September 24, 2024,  4:02:58PM EDT
+
+* Setup `minikube` to test deployment
+* Research which PostgreSQL version actually works with Harbor 2.11.1
+
 Tuesday, September 24, 2024,  1:33:26PM EDT
 
 * Upstream `goharbor/harbor` has no PostgreSQL (nor Redis)
