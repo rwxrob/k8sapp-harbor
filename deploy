@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [[ -z "$K8SAPP_CLUSTER" ]]; then
+	echo "error: missing required environment variable: K8SAPP_CLUSTER" >&2
+	exit 1
+fi
+
+kubectl apply -k "manifests/$K8SAPP_CLUSTER" --server-side --force-conflicts
