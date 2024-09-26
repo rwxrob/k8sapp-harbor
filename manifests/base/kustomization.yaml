@@ -1,4 +1,5 @@
 ---
 resources:
+  - ns.yaml
   - app.yaml
-  - pg-backup.yaml
+  #- pg-backup.yaml
