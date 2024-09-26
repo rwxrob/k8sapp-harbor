@@ -2,16 +2,24 @@
 
 TODO:
 
+* Figure out why Harbor cannot access Redis
 * Write the systems integration / DR test procedure
 * Finish `build` script
-    * If `harbor` namespace does not exist, create
     * Swap secrets for Vault `ExternalSecrets`
-* Write `deploy` script 
-    * `kubectl apply -f ...`
-    * Add `kustomize` as needed
 * Write `build` script to flatten into `manifest/{base,inf,dev}`
-* Write `undeploy` script 
 * Create a `harbor-postgresql-backup` `CronJob` in `manifest/base/pgbak.yaml`
+
+Thursday, September 26, 2024, 11:07:34AM EDT
+
+* Tried `qemu2`, `none`, and `docker`
+* Spent a lot of time install prereqs for drivers
+* Went with `docker` driver
+* Struggled with viewing harbor web interface
+* Ran into problem talking to Redis preventing Ready state
+* Finished initial versions of `build`, `deploy`, `undeploy`
+* If `harbor` namespace does not exist, create
+* Started talking about systems integration and DR testing
+* Bumped up resources to 13GB RAM, 8 procs for `anton` VM
 
 Tuesday, September 24, 2024,  4:02:58PM EDT
 
