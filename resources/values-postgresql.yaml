@@ -107,7 +107,7 @@ diagnosticMode:
 image:
   registry: docker.io
   repository: bitnami/postgresql
-  tag: 16.4.0-debian-12-r9
+  tag: 16.4.0-debian-12-r8
   digest: ""
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -1286,7 +1286,7 @@ readReplicas:
 ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/
 backup:
   ## @param backup.enabled Enable the logical dump of the database "regularly"
-  enabled: false
+  enabled: true
   cronjob:
     ## @param backup.cronjob.schedule Set the cronjob parameter schedule
     schedule: "@daily"
