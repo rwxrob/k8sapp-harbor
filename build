@@ -14,7 +14,7 @@ red=$'\e[31m'
 mag=$'\e[35m'
 x=$'\e[0m'
 tstamp=$(date -u +%Y%m%d%H%M%S)
-preapp="pre-app-$tsamp.yaml"
+preapp="pre-app-$tstamp.yaml"
 
 ## must be run from Linux machine (no accidental mac unix)
 if [[ ! "$OSTYPE" =~ ^linux ]];then
@@ -40,20 +40,34 @@ declare current
 current="$(kubectl config current-context)"
 if [[  "$current" != "$K8SAPP_CLUSTER" ]];then
 	printf "${red}current context (%s) != K8SAPP_CLUSTER (%s)${x}" \
-		"current" "$K*SAPP_CLUSTER"
+		"current" "$K8SAPP_CLUSTER"
 	exit 1
 fi
-
 
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update bitnami
 
+values_postgresql_file=$(mktemp)
+echo "$values_postgresql_file"
+values_redis_file=$(mktemp)
+
+#TODO add trap to cleanup temp
+
+yq '. |= {"postgresql": .} | ... comments=""' \
+	resources/values-postgresql.yaml \
+  > "$values_postgresql_file"
+
+yq '. |= {"redis": .} | ... comments=""' \
+	resources/values-redis.yaml \
+  > "$values_redis_file"
+
 declare yaml
 helm template harbor bitnami/harbor \
-	--values=resources/values.yaml \
+	--values "$values_postgresql_file" \
+	--values "$values_redis_file" \
+	--values resources/values.yaml \
 	--version="$HARBOR_CHART_VERSION" \
 	--namespace="$K8SAPP_NAMESPACE" \
-	--render-subchart-notes \
 	> "$preapp"
 
 echo "TODO alter pre-app-$tstamp.yaml and put in manifests"
