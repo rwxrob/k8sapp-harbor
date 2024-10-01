@@ -1,0 +1,10 @@
+#!/bin/bash
+
+TODO
+# make sure there's a cluster
+# create a namespace just for testing
+# install bitnami/postgres (same as used by harbor)
+# startup minikube service to get connectivity to pg instance
+# populate the postgres instance with sample data
+# run backup script
+# compare output of backup to sample data
