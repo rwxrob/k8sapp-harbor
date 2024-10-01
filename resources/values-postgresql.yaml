@@ -1289,13 +1289,13 @@ backup:
   enabled: true
   cronjob:
     ## @param backup.cronjob.schedule Set the cronjob parameter schedule
-    schedule: "@daily"
+    schedule: "@hourly"
     ## @param backup.cronjob.timeZone Set the cronjob parameter timeZone
     timeZone: ""
     ## @param backup.cronjob.concurrencyPolicy Set the cronjob parameter concurrencyPolicy
     concurrencyPolicy: Allow
     ## @param backup.cronjob.failedJobsHistoryLimit Set the cronjob parameter failedJobsHistoryLimit
-    failedJobsHistoryLimit: 1
+    failedJobsHistoryLimit: 3 
     ## @param backup.cronjob.successfulJobsHistoryLimit Set the cronjob parameter successfulJobsHistoryLimit
     successfulJobsHistoryLimit: 3
     ## @param backup.cronjob.startingDeadlineSeconds Set the cronjob parameter startingDeadlineSeconds
@@ -1303,7 +1303,7 @@ backup:
     ## @param backup.cronjob.ttlSecondsAfterFinished Set the cronjob parameter ttlSecondsAfterFinished
     ttlSecondsAfterFinished: ""
     ## @param backup.cronjob.restartPolicy Set the cronjob parameter restartPolicy
-    restartPolicy: OnFailure
+    restartPolicy: Never
     ## @param backup.cronjob.podSecurityContext.enabled Enable PodSecurityContext for CronJob/Backup
     ## @param backup.cronjob.podSecurityContext.fsGroupChangePolicy Set filesystem group change policy
     ## @param backup.cronjob.podSecurityContext.sysctls Set kernel settings using the sysctl interface
@@ -1348,7 +1348,8 @@ backup:
     ## @param backup.cronjob.labels Set the cronjob labels
     labels: {}
     ## @param backup.cronjob.annotations Set the cronjob annotations
-    annotations: {}
+    annotations:
+      sidecar.istio.io/inject: "false"
     ## @param backup.cronjob.nodeSelector Node labels for PostgreSQL backup CronJob pod assignment
     ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes/
     ##
@@ -1394,7 +1395,7 @@ backup:
       ## If undefined (the default) or set to null, no storageClassName spec is
       ## set, choosing the default provisioner.
       ##
-      storageClass: ""
+      storageClass: "dcnas-volumes"
       ## @param backup.cronjob.storage.accessModes PV Access Mode
       ##
       accessModes:
