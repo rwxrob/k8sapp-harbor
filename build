@@ -48,10 +48,7 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update bitnami
 
 values_postgresql_file=$(mktemp)
-echo "$values_postgresql_file"
 values_redis_file=$(mktemp)
-
-#TODO add trap to cleanup temp
 
 yq '. |= {"postgresql": .} | ... comments=""' \
 	resources/values-postgresql.yaml \
