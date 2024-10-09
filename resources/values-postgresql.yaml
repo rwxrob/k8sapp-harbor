@@ -821,7 +821,7 @@ primary:
   persistentVolumeClaimRetentionPolicy:
     ## @param primary.persistentVolumeClaimRetentionPolicy.enabled Enable Persistent volume retention policy for Primary Statefulset
     ##
-    enabled: false
+    enabled: true
     ## @param primary.persistentVolumeClaimRetentionPolicy.whenScaled Volume retention behavior when the replica count of the StatefulSet is reduced
     ##
     whenScaled: Retain
@@ -1272,7 +1272,7 @@ readReplicas:
   persistentVolumeClaimRetentionPolicy:
     ## @param readReplicas.persistentVolumeClaimRetentionPolicy.enabled Enable Persistent volume retention policy for read only Statefulset
     ##
-    enabled: false
+    enabled: true
     ## @param readReplicas.persistentVolumeClaimRetentionPolicy.whenScaled Volume retention behavior when the replica count of the StatefulSet is reduced
     ##
     whenScaled: Retain
@@ -1388,7 +1388,7 @@ backup:
       existingClaim: ""
       ## @param backup.cronjob.storage.resourcePolicy Setting it to "keep" to avoid removing PVCs during a helm delete operation. Leaving it empty will delete PVCs after the chart deleted
       ##
-      resourcePolicy: "keep"
+      resourcePolicy: ""
       ## @param backup.cronjob.storage.storageClass PVC Storage Class for the backup data volume
       ## If defined, storageClassName: <storageClass>
       ## If set to "-", storageClassName: "", which disables dynamic provisioning
