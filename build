@@ -21,7 +21,7 @@ yaml="out-$tstamp.yaml"
 vault_ns_path="$VAULT_PATH/$K8SAPP_CLUSTER/$K8SAPP_NAMESPACE"
 
 ## must be run from Linux machine (no accidental mac unix)
-if [[ ! "$OSTYPE" =~ ^linux ]];then
+if [[ ! "$OSTYPE" =~ ^linux ]]; then
 	printf "%sk8sapp requires linux%s\n" "$red" "$x"
 	exit 1
 fi
@@ -42,7 +42,7 @@ fi
 # make sure current context correct (without doing it automatically)
 declare current
 current="$(kubectl config current-context)"
-if [[  "$current" != "$K8SAPP_CLUSTER" ]];then
+if [[ "$current" != "$K8SAPP_CLUSTER" ]]; then
 	printf "${red}current context (%s) != K8SAPP_CLUSTER (%s)${x}\n" \
 		"current" "$K8SAPP_CLUSTER"
 	exit 1
@@ -56,11 +56,11 @@ values_redis_file=$(mktemp)
 
 yq '. |= {"postgresql": .} | ... comments=""' \
 	resources/values-postgresql.yaml \
-  > "$values_postgresql_file"
+	>"$values_postgresql_file"
 
 yq '. |= {"redis": .} | ... comments=""' \
 	resources/values-redis.yaml \
-  > "$values_redis_file"
+	>"$values_redis_file"
 
 helm template harbor bitnami/harbor \
 	--values "$values_postgresql_file" \
@@ -68,13 +68,13 @@ helm template harbor bitnami/harbor \
 	--values resources/values.yaml \
 	--version="$HARBOR_CHART_VERSION" \
 	--namespace="$K8SAPP_NAMESPACE" \
-	> "$yaml"
+	>"$yaml"
 
 secrets_file="manifests/$K8SAPP_CLUSTER/secrets.yaml"
 rm "$secrets_file"
 mapfile -t secret_names < <(yq -N 'select(.kind=="Secret")|.metadata.name' "$yaml")
-for name in "${secret_names[@]}";do
-	cat <<EOF >> "$secrets_file"
+for name in "${secret_names[@]}"; do
+	cat <<EOF >>"$secrets_file"
 ---
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
