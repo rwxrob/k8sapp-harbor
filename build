@@ -8,6 +8,10 @@ set -e
 : "${VAULT_PATH:=org/team}"
 : "${VAULT_STORE_REF:=vault}"
 
+# set to anything to enable secrets-orig.yaml to assist in creating
+# initial external secrets in vault
+: "${KEEP_SECRETS:=}"
+
 : "${http_proxy:=}"
 : "${https_proxy:=}"
 : "${no_proxy:=}"
@@ -91,5 +95,10 @@ spec:
 EOF
 done
 
-yq 'select(.kind != "Secret")' "$yaml" > manifests/base/app.yaml
+if [[ -n "$KEEP_SECRETS" ]]; then
+	yq 'select(.kind == "Secret")' "$yaml" >secrets-orig.yaml
+fi
+
+yq 'select(.kind != "Secret")' "$yaml" >manifests/base/app.yaml
+cp "$yaml" manifests/base/app.yaml
 rm "$yaml"
