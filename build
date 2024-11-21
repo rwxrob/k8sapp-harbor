@@ -1,0 +1,104 @@
+#!/bin/bash
+set -e
+
+: "${K8SAPP_CLUSTER:=dev}"
+: "${K8SAPP_NAMESPACE:=harbor}"
+: "${HARBOR_CHART_VERSION:=23.0.4}"
+: "${EXTERNAL_SECRET_STORE:=my-vault}"
+: "${VAULT_PATH:=org/team}"
+: "${VAULT_STORE_REF:=vault}"
+
+# set to anything to enable secrets-orig.yaml to assist in creating
+# initial external secrets in vault
+: "${KEEP_SECRETS:=}"
+
+: "${http_proxy:=}"
+: "${https_proxy:=}"
+: "${no_proxy:=}"
+
+declare red mag x tstamp yaml vault_ns_path
+red=$'\e[31m'
+mag=$'\e[35m'
+x=$'\e[0m'
+tstamp=$(date -u +%Y%m%d%H%M%S)
+yaml="out-$tstamp.yaml"
+vault_ns_path="$VAULT_PATH/$K8SAPP_CLUSTER/$K8SAPP_NAMESPACE"
+
+## must be run from Linux machine (no accidental mac unix)
+if [[ ! "$OSTYPE" =~ ^linux ]]; then
+	printf "%sk8sapp requires linux%s\n" "$red" "$x"
+	exit 1
+fi
+
+# double check all required external commands
+for cmd in kubectl skopeo buildah; do
+	[[ -n "$(command -v "$cmd")" ]] && continue
+	printf "${mag}%s${red} not found${x}\n" "$cmd"
+	exit 1
+done
+
+# force cluster to one of 'dev' or 'inf'
+if [[ ! "$K8SAPP_CLUSTER" =~ ^dev|inf$ ]]; then
+	printf "${red}K8SAPP_CLUSTER (%s) not dev|inf${x}\n" "$K8SAPP_CLUSTER"
+	exit 1
+fi
+
+# make sure current context correct (without doing it automatically)
+declare current
+current="$(kubectl config current-context)"
+if [[ "$current" != "$K8SAPP_CLUSTER" ]]; then
+	printf "${red}current context (%s) != K8SAPP_CLUSTER (%s)${x}\n" \
+		"current" "$K8SAPP_CLUSTER"
+	exit 1
+fi
+
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update bitnami
+
+values_postgresql_file=$(mktemp)
+values_redis_file=$(mktemp)
+
+yq '. |= {"postgresql": .} | ... comments=""' \
+	resources/values-postgresql.yaml \
+	>"$values_postgresql_file"
+
+yq '. |= {"redis": .} | ... comments=""' \
+	resources/values-redis.yaml \
+	>"$values_redis_file"
+
+helm template harbor bitnami/harbor \
+	--values "$values_postgresql_file" \
+	--values "$values_redis_file" \
+	--values resources/values.yaml \
+	--version="$HARBOR_CHART_VERSION" \
+	--namespace="$K8SAPP_NAMESPACE" \
+	>"$yaml"
+
+secrets_file="manifests/$K8SAPP_CLUSTER/secrets.yaml"
+rm "$secrets_file"
+mapfile -t secret_names < <(yq -N 'select(.kind=="Secret")|.metadata.name' "$yaml")
+for name in "${secret_names[@]}"; do
+	cat <<EOF >>"$secrets_file"
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+	name: "$name"
+	namespace: "harbor"
+spec:
+	secretStoreRef:
+		name: "$VAULT_STORE_REF"
+		kind: ClusterSecretStore
+	dataFrom:
+		- extract:
+				key: "$vault_ns_path/$name"
+EOF
+done
+
+if [[ -n "$KEEP_SECRETS" ]]; then
+	yq 'select(.kind == "Secret")' "$yaml" >secrets-orig.yaml
+fi
+
+yq 'select(.kind != "Secret")' "$yaml" >manifests/base/app.yaml
+cp "$yaml" manifests/base/app.yaml
+rm "$yaml"
